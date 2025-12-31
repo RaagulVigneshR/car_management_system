@@ -3,17 +3,15 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
-#include <limits> // <-- added to use numeric_limits
+#include <limits>
 
 using namespace std;
 
-// Plain struct (not a class)
+// Plain struct with model and price removed
 struct Car {
     string brand;
-    string model;
     int year;
     string licensePlate;
-    double price;
 };
 
 // Add a new car
@@ -41,10 +39,9 @@ bool removeCar(vector<Car>& cars, const string& licensePlate) {
 // Display a single car (formatting helper)
 void displayCar(const Car& car) {
     cout << "| " << setw(12) << left << car.brand
-         << "| " << setw(15) << left << car.model
          << "| " << setw(6) << left << car.year
          << "| " << setw(12) << left << car.licensePlate
-         << "| $" << setw(10) << fixed << setprecision(2) << car.price << " |" << endl;
+         << " |" << endl;
 }
 
 // Display all cars
@@ -54,18 +51,16 @@ void displayAllCars(const vector<Car>& cars) {
         return;
     }
 
-    cout << "\n" << string(70, '=') << endl;
+    cout << "\n" << string(50, '=') << endl;
     cout << "| " << setw(12) << left << "Brand"
-         << "| " << setw(15) << left << "Model"
          << "| " << setw(6) << left << "Year"
-         << "| " << setw(12) << left << "License"
-         << "| " << setw(12) << left << "Price" << "|" << endl;
-    cout << string(70, '=') << endl;
+         << "| " << setw(12) << left << "License" << " |" << endl;
+    cout << string(50, '=') << endl;
 
     for (const auto& car : cars) {
         displayCar(car);
     }
-    cout << string(70, '=') << endl;
+    cout << string(50, '=') << endl;
 }
 
 // Search car by license plate
@@ -76,25 +71,16 @@ void searchCar(const vector<Car>& cars, const string& licensePlate) {
                       });
 
     if (it != cars.end()) {
-        cout << "\n" << string(70, '=') << endl;
+        cout << "\n" << string(50, '=') << endl;
         cout << "| " << setw(12) << left << "Brand"
-             << "| " << setw(15) << left << "Model"
              << "| " << setw(6) << left << "Year"
-             << "| " << setw(12) << left << "License"
-             << "| " << setw(12) << left << "Price" << "|" << endl;
-        cout << string(70, '=') << endl;
+             << "| " << setw(12) << left << "License" << " |" << endl;
+        cout << string(50, '=') << endl;
         displayCar(*it);
-        cout << string(70, '=') << endl;
+        cout << string(50, '=') << endl;
     } else {
         cout << "\n✗ Car not found!" << endl;
     }
-}
-
-// Get total inventory value
-double getTotalInventoryValue(const vector<Car>& cars) {
-    double total = 0;
-    for (const auto& car : cars) total += car.price;
-    return total;
 }
 
 // Get number of cars
@@ -111,7 +97,7 @@ void displayMenu() {
     cout << "2. Remove a car" << endl;
     cout << "3. Display all cars" << endl;
     cout << "4. Search car by license plate" << endl;
-    cout << "5. View inventory value" << endl;
+    cout << "5. View inventory count" << endl;
     cout << "6. Exit" << endl;
     cout << string(50, '*') << endl;
     cout << "Enter your choice (1-6): ";
@@ -120,14 +106,13 @@ void displayMenu() {
 int main() {
     vector<Car> cars;
     int choice;
-    string brand, model, licensePlate;
+    string brand, licensePlate;
     int year;
-    double price;
 
-    // Add sample cars
-    addCar(cars, Car{"Toyota", "Camry", 2022, "ABC123", 25000.00});
-    addCar(cars, Car{"Honda", "Civic", 2021, "XYZ789", 22000.00});
-    addCar(cars, Car{"BMW", "X5", 2023, "BMW001", 65000.00});
+    // Add sample cars (model and price removed)
+    addCar(cars, Car{"Toyota", 2022, "ABC123"});
+    addCar(cars, Car{"Honda", 2021, "XYZ789"});
+    addCar(cars, Car{"BMW", 2023, "BMW001"});
 
     cout << "\n===========================================" << endl;
     cout << "     Welcome to Car Management System" << endl;
@@ -137,7 +122,7 @@ int main() {
         displayMenu();
         if (!(cin >> choice)) {
             cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // fixed by including <limits>
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "\n✗ Invalid input! Please enter a number between 1 and 6." << endl;
             continue;
         }
@@ -148,18 +133,18 @@ int main() {
             cout << "\n--- Add New Car ---" << endl;
             cout << "Enter brand: ";
             getline(cin, brand);
-            cout << "Enter model: ";
-            getline(cin, model);
             cout << "Enter year: ";
-            cin >> year;
+            if (!(cin >> year)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "\n✗ Invalid year. Operation cancelled." << endl;
+                break;
+            }
             cin.ignore();
             cout << "Enter license plate: ";
             getline(cin, licensePlate);
-            cout << "Enter price:  $";
-            cin >> price;
-            cin.ignore();
 
-            addCar(cars, Car{brand, model, year, licensePlate, price});
+            addCar(cars, Car{brand, year, licensePlate});
             break;
         }
         case 2: {
@@ -183,8 +168,6 @@ int main() {
         case 5: {
             cout << "\n" << string(50, '-') << endl;
             cout << "Total Cars in Inventory: " << getCarCount(cars) << endl;
-            cout << fixed << setprecision(2);
-            cout << "Total Inventory Value: $" << getTotalInventoryValue(cars) << endl;
             cout << string(50, '-') << endl;
             break;
         }
